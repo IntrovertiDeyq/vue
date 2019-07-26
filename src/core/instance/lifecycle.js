@@ -29,19 +29,23 @@ export function setActiveInstance(vm: Component) {
   }
 }
 
+//初始化实例属性，包括外部属性和内部属性
 export function initLifecycle (vm: Component) {
   const options = vm.$options
 
   // locate first non-abstract parent
+  //找出第一个非抽象父类??
   let parent = options.parent
   if (parent && !options.abstract) {
     while (parent.$options.abstract && parent.$parent) {
       parent = parent.$parent
     }
+    //将当前实例添加到父组件实例的children属性中
     parent.$children.push(vm)
   }
 
   vm.$parent = parent
+  //如果不存在父组件则本身为根节点
   vm.$root = parent ? parent.$root : vm
 
   vm.$children = []
