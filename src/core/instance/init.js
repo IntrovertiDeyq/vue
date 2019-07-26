@@ -29,12 +29,14 @@ export function initMixin (Vue: Class<Component>) {
     // a flag to avoid this being observed
     vm._isVue = true
     // merge options
+    // _isComponent属性
     if (options && options._isComponent) {
       // optimize internal component instantiation
       // since dynamic options merging is pretty slow, and none of the
       // internal component options needs special treatment.
       initInternalComponent(vm, options)
     } else {
+      // 构造函数上的options属性何时添加??
       vm.$options = mergeOptions(
         resolveConstructorOptions(vm.constructor),
         options || {},
@@ -49,6 +51,7 @@ export function initMixin (Vue: Class<Component>) {
     }
     // expose real self
     vm._self = vm
+    //初始化实例属性
     initLifecycle(vm)
     initEvents(vm)
     initRender(vm)
@@ -89,7 +92,9 @@ export function initInternalComponent (vm: Component, options: InternalComponent
     opts.staticRenderFns = options.staticRenderFns
   }
 }
-
+// 获取当前实例构造函数上的options属性
+// 如果包含父组件，递归获取父级实例的构造函数的options属性并将它合并到当前的options属性上
+// 初次获取父级实例构造函数的options属性时缓存到当前构造函数上
 export function resolveConstructorOptions (Ctor: Class<Component>) {
   let options = Ctor.options
   if (Ctor.super) {
