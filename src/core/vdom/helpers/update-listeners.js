@@ -93,6 +93,8 @@ export function updateListeners (
       }
       add(event.name, cur, event.capture, event.passive, event.params)
     } else if (cur !== old) {
+      //如果事件名在on和oldOn都存在但是监听器列表不同则用on的监听器列表去替换old的监听器列表
+      //将on的回调指向真实的事件系统中注册的事件
       old.fns = cur
       on[name] = old
     }
