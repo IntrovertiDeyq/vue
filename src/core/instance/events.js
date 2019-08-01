@@ -10,6 +10,9 @@ import {
 import { updateListeners } from '../vdom/helpers/index'
 
 //实例化阶段的初始化事件，实际上是将父组件在模板中注册的事件添加到子组件的事件系统中
+//在渲染阶段生成vnode进行对比渲染创建元素时，会判断标签为组件标签或者是普通标签
+//组件标签则实例化子组件并传递相关参数，平台标签则注册浏览器事件
+//子组件自身在模板中注册的事件，只要在渲染的时候才会根据虚拟DOM的对比结果判断是注册事件还是解绑事件
 export function initEvents (vm: Component) {
   vm._events = Object.create(null)
   vm._hasHookEvent = false
@@ -58,7 +61,7 @@ export function updateComponentListeners (
 
 export function eventsMixin (Vue: Class<Component>) {
   const hookRE = /^hook:/
-  //监听实例上的自定义事件，回调函数接收所以传入事件锁触发的函数的额外参数
+  //监听实例上的自定义事件，回调函数接收所有传入事件所触发的函数的额外参数
   //event可以传入String或者数组
   //on的作用就是在注册的时候收集事件的回调函数
   Vue.prototype.$on = function (event: string | Array<string>, fn: Function): Component {
@@ -136,7 +139,7 @@ export function eventsMixin (Vue: Class<Component>) {
     return vm
   }
 
-  //emit触发事件
+  //emit触发事件，附加的参数都会传给监听器回调
   Vue.prototype.$emit = function (event: string): Component {
     const vm: Component = this
     if (process.env.NODE_ENV !== 'production') {
@@ -151,12 +154,15 @@ export function eventsMixin (Vue: Class<Component>) {
         )
       }
     }
+    //取出对于事件的所有监听器回调函数列表
     let cbs = vm._events[event]
     if (cbs) {
+      //toArray可以将类数组转换成真正的数组，第二个参数是起始位置
       cbs = cbs.length > 1 ? toArray(cbs) : cbs
       const args = toArray(arguments, 1)
       const info = `event handler for "${event}"`
       for (let i = 0, l = cbs.length; i < l; i++) {
+        //依次执行回调函数并且捕获错误
         invokeWithErrorHandling(cbs[i], vm, args, vm, info)
       }
     }
