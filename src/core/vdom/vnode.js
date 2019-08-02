@@ -39,9 +39,12 @@ export default class VNode {
     componentOptions?: VNodeComponentOptions,
     asyncFactory?: Function
   ) {
+    //节点名称
     this.tag = tag
     this.data = data
+    //子节点
     this.children = children
+    //节点的文本
     this.text = text
     this.elm = elm
     this.ns = undefined
@@ -71,6 +74,7 @@ export default class VNode {
   }
 }
 
+//创建注释节点
 export const createEmptyVNode = (text: string = '') => {
   const node = new VNode()
   node.text = text
@@ -78,6 +82,7 @@ export const createEmptyVNode = (text: string = '') => {
   return node
 }
 
+//创建文本节点
 export function createTextVNode (val: string | number) {
   return new VNode(undefined, undefined, undefined, String(val))
 }
@@ -86,6 +91,9 @@ export function createTextVNode (val: string | number) {
 // used for static nodes and slot nodes because they may be reused across
 // multiple renders, cloning them avoids errors when DOM manipulations rely
 // on their elm reference.
+//创建克隆节点，将现有节点的属性复制到新节点中
+//作用主要是优化静态节点和插槽节点
+//静态节点的内容不会改变，所以只需要首次渲染时需要执行渲染函数获取Vnode
 export function cloneVNode (vnode: VNode): VNode {
   const cloned = new VNode(
     vnode.tag,
@@ -93,6 +101,7 @@ export function cloneVNode (vnode: VNode): VNode {
     // #7975
     // clone children array to avoid mutating original in case of cloning
     // a child.
+    //创建children数组的副本避免在被克隆的情况下改变原始数据
     vnode.children && vnode.children.slice(),
     vnode.text,
     vnode.elm,
@@ -108,6 +117,7 @@ export function cloneVNode (vnode: VNode): VNode {
   cloned.fnOptions = vnode.fnOptions
   cloned.fnScopeId = vnode.fnScopeId
   cloned.asyncMeta = vnode.asyncMeta
+  //新增属性代表是否为克隆节点
   cloned.isCloned = true
   return cloned
 }
